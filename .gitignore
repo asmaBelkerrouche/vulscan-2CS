@@ -1,0 +1,49 @@
+# 🧠 Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.egg-info/
+*.egg
+*.log
+
+# ⚙️ Django
+db.sqlite3
+/media/
+staticfiles/
+.env
+.vscode/
+*.sqlite3
+
+# 🐍 Virtual environments
+venv/
+env/
+.venv/
+
+# 🐳 Docker
+*.pid
+*.sock
+*.log
+*.tmp
+*.db
+.dockerignore
+
+# 💾 OS junk
+.DS_Store
+Thumbs.db
+
+# 💻 IDEs and editors
+.idea/
+.vscode/
+*.code-workspace
+
+# 🧩 Node (if you ever add a frontend)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 🧰 Build artifacts
+dist/
+build/
