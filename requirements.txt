@@ -1,10 +1,27 @@
-asgiref==3.9.2
+# Core
 Django==5.2.7
 djangorestframework==3.16.1
-#gunicorn==23.0.0
-packaging==25.0
+python-dotenv==1.0.1
+
+# Celery + Redis
+celery==5.4.0
+redis==5.0.7
+
+# Postgres (Neon) — choose ONE of the following drivers:
+psycopg[binary]==3.2.3        # ✅ RECOMMENDED (psycopg v3 with binary wheels)
+# psycopg2-binary==2.9.9       # (Alternative: comment above and uncomment this if you prefer v2)
+
+# HTTP client for scanner
+requests==2.32.3
+
+# JWT + DB URL parser
+PyJWT==2.9.0
+dj-database-url==2.2.0
+
+# Django deps
+asgiref==3.9.2
 sqlparse==0.5.3
 tzdata==2025.2
-python-dotenv==1.0.1    # load .env file
-psycopg
-PyJWT
+
+# Optional prod server
+# gunicorn==23.0.0

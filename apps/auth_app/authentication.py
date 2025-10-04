@@ -1,7 +1,7 @@
 from rest_framework.authentication import BaseAuthentication
 from rest_framework import exceptions
 from django.contrib.auth.models import User
-from .jwt_utils import decode_jwt
+from apps.auth_app.jwt_utils import decode_jwt
 
 class CookieJWTAuthentication(BaseAuthentication):
     """
@@ -25,3 +25,4 @@ class CookieJWTAuthentication(BaseAuthentication):
             raise exceptions.AuthenticationFailed("User not found")
 
         return (user, token)
+    
