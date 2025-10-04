@@ -20,5 +20,6 @@ from django.urls import path,include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("", include("apps.auth_app.urls")),
+    path("", include("apps.auth_app.urls")),   # hathi auth endpoints
+    path("", include("apps.scans_app.urls")),  # this is for th scans endpoints :)
 ]

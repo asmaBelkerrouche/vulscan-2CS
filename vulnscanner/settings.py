@@ -43,6 +43,37 @@ DATABASES = {
     }
 }
 
+# # --- Database (Neon) ---
+# DATABASE_URL = os.getenv("DATABASE_URL")
+# if DATABASE_URL:
+#     DATABASES = {
+#         "default": dj_database_url.parse(
+#             DATABASE_URL,
+#             conn_max_age=600,
+#             ssl_require=True,
+#         )
+#     }
+# else:
+#     # Fallback to individual vars (still enforces SSL)
+#     DB_NAME = os.getenv("DB_NAME", "neondb")
+#     DB_USER = os.getenv("DB_USER", "")
+#     DB_PASSWORD = os.getenv("DB_PASSWORD", "")
+#     DB_HOST = os.getenv("DB_HOST", "")
+#     DB_PORT = os.getenv("DB_PORT", "5432")
+#     DATABASES = {
+#         "default": {
+#             "ENGINE": "django.db.backends.postgresql",
+#             "NAME": DB_NAME,
+#             "USER": DB_USER,
+#             "PASSWORD": DB_PASSWORD,
+#             "HOST": DB_HOST,
+#             "PORT": DB_PORT,
+#             "OPTIONS": {
+#                 "sslmode": os.getenv("DB_SSLMODE", "require"),
+#             },
+#         }
+#     }
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -52,6 +83,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.postgres',   # <= add this line
     "rest_framework",
     "apps.auth_app",
     "apps.scans_app",
@@ -133,3 +165,17 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# --- Celery / Redis ---
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/0")
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "redis://localhost:6379/1")
+
+CELERY_TASK_ROUTES = {
+    "apps.scans_app.tasks.run_scan_task": {"queue": "scans"},
+}
+CELERY_TASK_TIME_LIMIT = 60 * 15
+CELERY_TASK_SOFT_TIME_LIMIT = 60 * 10
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+

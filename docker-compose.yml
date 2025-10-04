@@ -1,11 +1,32 @@
 services:
-  web:  # 🐍 Django service
+  web:  # 🐍 Django API (runs your DRF endpoints)
     build: .
     container_name: vulnscanner_web
-    command: python manage.py runserver 0.0.0.0:8000
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/app
     ports:
       - "8000:8000"
     env_file:
       - .env
+    depends_on:
+      - redis
+
+  redis:  # ⚡ Celery broker / result backend
+    image: redis:7-alpine
+    container_name: vulnscanner_redis
+    ports:
+      - "6379:6379"
+
+  worker:  # 🛠️ Celery worker that executes scan tasks
+    build: .
+    container_name: vulnscanner_worker
+    command: celery -A vulnscanner worker -l info --queues=scans --concurrency=2
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - redis
