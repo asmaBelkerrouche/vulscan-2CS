@@ -25,3 +25,5 @@ tzdata==2025.2
 
 # Optional prod server
 # gunicorn==23.0.0
+
+Pillow>=10.0
