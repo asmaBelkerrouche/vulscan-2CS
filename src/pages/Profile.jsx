@@ -18,7 +18,6 @@ export default function Profile() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   const fileInputRef = useRef(null)
-  const cameraInputRef = useRef(null)
   const navigate = useNavigate()
 
   // ---------- Effects ----------
@@ -81,10 +80,8 @@ export default function Profile() {
   }
 
   const handleSaveProfile = () => {
-    // Save to localStorage (front only)
     const userData = { name, email }
     localStorage.setItem("userData", JSON.stringify(userData))
-
     setIsEditing(false)
     setMessage("Profile information updated successfully.")
   }
@@ -175,14 +172,11 @@ export default function Profile() {
               </label>
             </div>
 
-            {/* Upload Options */}
+            {/* Upload Option */}
             <div className="flex-1">
-              <h3 className="text-lg font-medium mb-2">
-                Update your profile photo
-              </h3>
+              <h3 className="text-lg font-medium mb-2">Update your profile photo</h3>
               <p className="text-gray-400 text-sm mb-4">
-                Upload from your device or take a new photo. Recommended size:
-                400x400px
+                Upload from your device. Recommended size: 400x400px
               </p>
               <div className="flex gap-3">
                 <label className="inline-block rounded-lg bg-[#34D399] px-6 py-2 text-sm font-semibold text-white hover:bg-[#2bb380] transition-all shadow-lg shadow-[#34D399]/30 cursor-pointer">
@@ -190,17 +184,6 @@ export default function Profile() {
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                  />
-                </label>
-                <label className="inline-block rounded-lg border border-[#34D399] px-6 py-2 text-sm font-semibold text-[#34D399] hover:bg-[#34D399]/10 transition-all cursor-pointer">
-                  Take Photo
-                  <input
-                    ref={cameraInputRef}
-                    type="file"
-                    accept="image/*"
-                    capture="user"
                     onChange={handleImageUpload}
                     className="hidden"
                   />
@@ -312,7 +295,7 @@ export default function Profile() {
                 </button>
               </form>
             )}
-        
+
             <SecurityButton
               title="Log Out"
               subtitle="End your session and log out"
@@ -366,4 +349,3 @@ function SecurityButton({ title, subtitle, onClick, color = "green", danger }) {
     </button>
   )
 }
-

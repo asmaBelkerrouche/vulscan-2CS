@@ -5,7 +5,8 @@ import { useNavigate } from "react-router-dom";
 
 export default function LoginSignup() {
   const [isLogin, setIsLogin] = useState(true);
-  const [fullName, setFullName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -21,8 +22,8 @@ export default function LoginSignup() {
       return;
     }
 
-    if (!isLogin && !fullName) {
-      setError("Please enter your full name");
+    if (!isLogin && (!firstName || !lastName)) {
+      setError("Please enter your first and last name");
       return;
     }
 
@@ -41,7 +42,7 @@ export default function LoginSignup() {
         setError("No account found. Please sign up first.");
       }
     } else {
-      const userData = { fullName, email, password };
+      const userData = { firstName, lastName, email, password };
       localStorage.setItem("user", JSON.stringify(userData));
       localStorage.setItem("isLoggedIn", "true");
       navigate("/");
@@ -87,14 +88,24 @@ export default function LoginSignup() {
 
         <form className="space-y-4" onSubmit={handleSubmit}>
           {!isLogin && (
-            <input
-              type="text"
-              placeholder="Full Name"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              className="w-full px-4 py-2 bg-[#0D1B2A] text-[#F4F4F4] border border-[#1F3B5A] rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
-            />
+            <>
+              <input
+                type="text"
+                placeholder="First Name"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                className="w-full px-4 py-2 bg-[#0D1B2A] text-[#F4F4F4] border border-[#1F3B5A] rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
+              />
+              <input
+                type="text"
+                placeholder="Last Name"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                className="w-full px-4 py-2 bg-[#0D1B2A] text-[#F4F4F4] border border-[#1F3B5A] rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
+              />
+            </>
           )}
+
           <input
             type="email"
             placeholder="Email"
@@ -102,6 +113,7 @@ export default function LoginSignup() {
             onChange={(e) => setEmail(e.target.value)}
             className="w-full px-4 py-2 bg-[#0D1B2A] text-[#F4F4F4] border border-[#1F3B5A] rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
           />
+
           <input
             type="password"
             placeholder="Password"
