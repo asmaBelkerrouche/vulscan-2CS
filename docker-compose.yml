@@ -1,5 +1,5 @@
 services:
-  web:  # 🐍 Django API (runs your DRF endpoints)
+  web:
     build: .
     container_name: vulnscanner_web
     command: >
@@ -7,6 +7,7 @@ services:
              python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/app
+      - media_data:/app/media      # ✅ persist uploaded avatars/media
     ports:
       - "8000:8000"
     env_file:
@@ -14,19 +15,24 @@ services:
     depends_on:
       - redis
 
-  redis:  # ⚡ Celery broker / result backend
+  redis:
     image: redis:7-alpine
     container_name: vulnscanner_redis
     ports:
       - "6379:6379"
 
-  worker:  # 🛠️ Celery worker that executes scan tasks
+  worker:
     build: .
     container_name: vulnscanner_worker
     command: celery -A vulnscanner worker -l info --queues=scans --concurrency=2
     volumes:
       - .:/app
+      # worker usually doesn't need the media volume, but harmless if you add it:
+      # - media_data:/app/media
     env_file:
       - .env
     depends_on:
       - redis
+
+volumes:
+  media_data: {}    # ✅ declare the named volume

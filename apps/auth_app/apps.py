@@ -1,6 +1,10 @@
+# apps/auth_app/apps.py
 from django.apps import AppConfig
 
-
 class AuthAppConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'apps.auth_app'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "apps.auth_app"
+
+    def ready(self):
+        # Import signal handlers
+        from . import signals  # noqa: F401
