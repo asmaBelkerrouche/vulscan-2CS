@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import ScanListCreateView, ScanDetailView, ScanCancelView ,ScanResultView ,ScanReportView
+from .views import ScanListCreateView, ScanDetailView, ScanCancelView ,ScanResultView ,ScanReportView ,ScanDownloadView
 
 urlpatterns = [
     path("scans", ScanListCreateView.as_view(), name="scan-list-create"),
@@ -7,4 +7,5 @@ urlpatterns = [
     path("scans/<int:scan_id>/cancel", ScanCancelView.as_view(), name="scan-cancel"),
     path("scans/<int:scan_id>/result", ScanResultView.as_view(), name="scan-result"),
     path("scans/<int:scan_id>/report", ScanReportView.as_view(), name="scan-report"),
+    path("scans/<int:scan_id>/download", ScanDownloadView.as_view(), name="scan-download"),
 ]
