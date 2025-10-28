@@ -27,3 +27,5 @@ tzdata==2025.2
 # gunicorn==23.0.0
 
 Pillow>=10.0
+
+weasyprint==62.3

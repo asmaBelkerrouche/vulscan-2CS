@@ -221,3 +221,177 @@ class ScanReportView(AuthenticatedView):
             payload["result"] = None
 
         return Response(payload, status=status.HTTP_200_OK)
+
+# apps/scans_app/views.py  (download view section)
+
+from datetime import timedelta
+from django.http import HttpResponse, JsonResponse
+from django.template.loader import render_to_string
+from django.utils import timezone
+from weasyprint import HTML
+import django.db.models as djm
+
+from .models import Scan, ScanResult  # Vulnerability is accessed via scan.vulnerabilities
+
+# --- helpers -----------------------------------------------------------------
+
+def _dur_str(start, end):
+    """Return a short human-readable duration (e.g. '1 min 22 sec')."""
+    try:
+        if not start or not end:
+            return "—"
+        if isinstance(start, str):
+            start = timezone.datetime.fromisoformat(start.replace("Z", "+00:00"))
+        if isinstance(end, str):
+            end = timezone.datetime.fromisoformat(end.replace("Z", "+00:00"))
+        delta: timedelta = end - start
+        secs = max(0, int(delta.total_seconds()))
+        return f"{secs // 60} min {secs % 60} sec"
+    except Exception:
+        return "—"
+
+
+def _sev_summary(vulns):
+    """Aggregate counts by severity."""
+    summary = {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0}
+    for v in vulns:
+        sev = (v.get("severity") or "info").lower()
+        summary[sev] = summary.get(sev, 0) + 1
+    summary["total"] = sum(summary.values())
+    return summary
+
+
+def _pct(n, total):
+    try:
+        return 0 if not total else round(n * 100 / total)
+    except Exception:
+        return 0
+
+class ScanDownloadView(AuthenticatedView):
+    """
+    GET /scans/<scan_id>/download?format=pdf|html|json
+    (also tolerant of '?as=' and stray whitespace/newlines in the value)
+    """
+    def get(self, request, scan_id: int, fmt: str | None = None):
+        # Normalize requested format
+        raw = fmt or request.GET.get("format") or request.GET.get("as") or "pdf"
+        fmt = str(raw).strip().lower()
+
+        # 1) Fetch scan & check ownership
+        try:
+            scan = Scan.objects.get(id=scan_id, user=request.user)
+        except Scan.DoesNotExist:
+            return JsonResponse({"detail": "Scan not found."}, status=404)
+
+        if scan.status != "completed":
+            return JsonResponse(
+                {"detail": f"Scan is {scan.status}. Download available after completion."},
+                status=409,
+            )
+
+        # 2) Pull related data (safe defaults)
+        try:
+            result: ScanResult = scan.result
+        except ScanResult.DoesNotExist:
+            result = None
+
+        vulns_qs = (
+            scan.vulnerabilities.all().order_by(
+                djm.Case(
+                    djm.When(severity="critical", then=djm.Value(0)),
+                    djm.When(severity="high",    then=djm.Value(1)),
+                    djm.When(severity="medium",  then=djm.Value(2)),
+                    djm.When(severity="low",     then=djm.Value(3)),
+                    djm.When(severity="info",    then=djm.Value(4)),
+                    default=djm.Value(5),
+                    output_field=djm.IntegerField(),
+                ),
+                "name",
+            )
+        )
+
+        # 3) Build hosts structure compatible with template
+        hosts: list[dict] = []
+        if result:
+            host_block = {
+                "ip": scan.target,
+                "reachable": bool(getattr(result, "open_ports", None)),
+                "ports": getattr(result, "open_ports", []) or [],
+                "http": getattr(result, "http_info", None),
+                "tls": getattr(result, "tls_info", None),
+                "vulnMatches": [],  # filled below
+            }
+            hosts.append(host_block)
+
+        # 4) Convert Vulnerability queryset to list for both host-level and report table
+        vulns: list[dict] = []
+        for v in vulns_qs:
+            vulns.append(
+                {
+                    "severity": (v.severity or "info"),
+                    "name": v.name,
+                    "host": scan.target,
+                    "path": v.path or "",
+                    "description": v.description or "",
+                    "remediation": v.remediation or "",
+                    "references": v.reference_links or [],
+                }
+            )
+        if hosts:
+            hosts[0]["vulnMatches"] = vulns
+
+        # 5) Aggregates
+        sev = _sev_summary(vulns)  # -> {critical,high,medium,low,info,total}
+        duration = _dur_str(scan.started_at, scan.finished_at)
+
+        open_ports_total = 0
+        if result and isinstance(result.open_ports, (list, tuple)):
+            open_ports_total = sum(
+                1 for p in result.open_ports if (p or {}).get("state") == "open"
+            )
+
+        # widths for the severity bar in template
+        total_for_bar = max(1, sev.get("total", 0))
+        widths = {
+            "critical": round(100 * sev.get("critical", 0) / total_for_bar, 2),
+            "high":     round(100 * sev.get("high", 0) / total_for_bar, 2),
+            "medium":   round(100 * sev.get("medium", 0) / total_for_bar, 2),
+            "low":      round(100 * sev.get("low", 0) / total_for_bar, 2),
+            "info":     round(100 * sev.get("info", 0) / total_for_bar, 2),
+        }
+
+        context = {
+            "app_name": "VulnScanner",
+            "logo_text": "VulnScanner",
+            "generated_at": timezone.now(),
+            "user_name": f"{getattr(request.user, 'first_name', 'User')} {getattr(request.user, 'last_name', '')}".strip(),
+            "scan": {
+                "target": scan.target,
+                "type": scan.mode,
+                "status": scan.status,
+                "createdAt": scan.created_at.isoformat(),
+                "finishedAt": scan.finished_at.isoformat() if scan.finished_at else "",
+                "results": {"summary": {"hostsScanned": 1}, "hosts": hosts},
+            },
+            "hosts": hosts,
+            "vulns": vulns,
+            "sev": sev,
+            "widths": widths,
+            "duration": duration,
+            "open_ports_total": open_ports_total,
+        }
+
+        # 6) Output formats
+        if fmt == "json":
+            return JsonResponse(context, status=200, safe=False)
+
+        html = render_to_string("reports/scan_report.html", context)
+
+        if fmt == "html":
+            return HttpResponse(html)
+
+        # default: PDF
+        pdf = HTML(string=html, base_url=request.build_absolute_uri("/")).write_pdf()
+        resp = HttpResponse(pdf, content_type="application/pdf")
+        resp["Content-Disposition"] = f'attachment; filename="scan_report_{scan_id}.pdf"'
+        return resp
