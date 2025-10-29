@@ -5,21 +5,25 @@ import History from "../pages/History";
 import AboutUs from "../pages/AboutUs";
 import Profile from "../pages/Profile";
 import LoginSignup from "../pages/LoginSignup";
+import ProtectedRoute from "../components/ProtectedRoute"; // ✅ Import this
 
 export default function AppRoutes() {
   return (
     <Routes>
-      {/* Public Route */}
+      {/* Public routes */}
+      <Route path="/home" element={<Home />} />
+      <Route path="/about" element={<AboutUs />} />
       <Route path="/login" element={<LoginSignup />} />
 
-      {/* Direct access to pages */}
-      <Route path="/home" element={<Home />} />
-      <Route path="/" element={<NewScanPage />} />
-      <Route path="/scan" element={<NewScanPage />} />
-      <Route path="/history" element={<History />} />
-      <Route path="/about" element={<AboutUs/>} />
-      <Route path="/profile" element={<Profile />} />
+      {/* Protected routes */}
+      <Route element={<ProtectedRoute />}>
+        <Route path="/scan" element={<NewScanPage />} />
+        <Route path="/history" element={<History />} />
+        <Route path="/profile" element={<Profile />} />
+      </Route>
+
+      {/* Default redirect (optional) */}
+      <Route path="*" element={<Home />} />
     </Routes>
   );
 }
-

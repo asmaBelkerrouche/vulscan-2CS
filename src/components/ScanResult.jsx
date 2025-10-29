@@ -1,44 +1,58 @@
-export default function Vulnerabilities() {
-  const vulnerabilities = [
-    { name: "SQL Injection", icon: "i", status: "safe" },
-    { name: "Cross-Site Scripting (XSS)", icon: "X", status: "safe" },
-    { name: "Outdated Libraries", icon: "!", status: "warning" }
-  ];
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts"
+
+export default function Scan() {
+  const data = [
+    { name: "Safe", value: 80 },
+    { name: "Vulnerabilities", value: 20 },
+  ]
+  const COLORS = ["#22c55e", "#f97316"]
 
   return (
-    <div className="w-full">
-      <div className="bg-slate-800 rounded-2xl p-6 shadow-2xl">
-        <h3 className="text-xl font-bold text-white mb-6">
-          Common Vulnerabilities
-        </h3>
+  
+      <div className="bg-white backdrop-blur-xl rounded-2xl border border-white/10 shadow-xl p-10 flex flex-col md:flex-row items-center justify-between w-full max-w-5xl">
+        
+        {/* LEFT SIDE — TEXT */}
+        <div className="flex-1">
+          <h2 className="text-3xl text-black font-bold mt-4 mb-4  tracking-wide">
+            Scan Result Summary
+          </h2>
+          <p className="text-gray-500 text-lg leading-relaxed font-medium">
+            The results of your last security scan are summarized below.
+            Review your vulnerability ratio and ensure your system remains protected.
+          </p>
+        </div>
 
-        {/* Vulnerabilities List */}
-        <div className="space-y-3">
-          {vulnerabilities.map((vuln, index) => (
-            <div
-              key={index}
-              className="flex items-center justify-between bg-slate-700/50 p-4 rounded-lg hover:bg-slate-700 transition-colors"
-            >
-              {/* Left Side - Icon and Name */}
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-teal-500 rounded-full flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">{vuln.icon}</span>
-                </div>
-                <span className="text-sm text-slate-200">{vuln.name}</span>
-              </div>
-
-              {/* Right Side - Status */}
-              <div>
-                {vuln.status === "safe" ? (
-                  <span className="text-green-400 text-lg">✅</span>
-                ) : (
-                  <span className="text-orange-400 text-lg">⚠️</span>
-                )}
-              </div>
-            </div>
-          ))}
+        {/* RIGHT SIDE — PIE CHART */}
+        <div className="w-full md:w-1/3 h-72 mt-10 md:mt-0 flex flex-col justify-center items-center">
+       
+          <h3 className="text-gray-300 mb-2 text-xl font-semibold tracking-wide uppercase">
+            Detection Ratio
+          </h3>
+          <div className="w-1 h-2 rounded-full bg-gray-300  mb-2 "></div>
+          <ResponsiveContainer>
+            <PieChart>
+              <Pie
+                data={data}
+                cx="50%"
+                cy="50%"
+                innerRadius="60%"
+                outerRadius="95%"
+                strokeWidth={5}
+                dataKey="value"
+                paddingAngle={4}
+              >
+                {data.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index]}
+                    stroke="none"
+                  />
+                ))}
+              </Pie>
+            </PieChart>
+          </ResponsiveContainer>
         </div>
       </div>
-    </div>
-  );
+    
+  )
 }

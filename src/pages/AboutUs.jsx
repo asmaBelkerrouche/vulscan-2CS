@@ -29,7 +29,7 @@ export default function AboutUs() {
                 Easily scan websites and applications for common security flaws.
               </p>
               <Link
-                to="/"
+                to="/scan"
                 className="inline-block bg-[#34D399] text-[#0D1B2A] px-8 py-3 rounded-lg font-semibold hover:bg-[#2ab57d] transition-colors shadow-lg shadow-[#34D399]/20"
               >
                 Start Scanning

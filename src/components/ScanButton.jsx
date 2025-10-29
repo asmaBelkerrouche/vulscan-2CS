@@ -1,16 +1,18 @@
+import { useNavigate } from "react-router-dom";
 export default function ScanButton() {
-    return (
+  const navigate = useNavigate();
+  return (
+    <div className="border-3 rounded-full p-1 shadow-[0_0_15px_2px_rgba(94,234,212,0.5)] transition-all duration-500 hover:scale-105">
       <div className="flex justify-start">
         <button
+          onClick={() => navigate("/scan")}
           className="relative px-16 py-6 rounded-full text-lg font-semibold text-slate-900 bg-white
-                     transition-all duration-500 hover:scale-105"
+                     transition-all duration-500 
+                     hover:shadow-[0_0_15px_4px_rgba(94,234,212,0.5)] hover:scale-90"
         >
           Scan Now
-  
-          {/* Glowing border effect */}
-          <span className="absolute inset-0 rounded-full border-2 border-blue-400 shadow-[0_0_15px_4px_rgba(59,130,246,0.6)] transition-all duration-500 hover:shadow-[0_0_25px_8px_rgba(59,130,246,0.8)]"></span>
         </button>
       </div>
-    );
-  }
-  
+    </div>
+  );
+}

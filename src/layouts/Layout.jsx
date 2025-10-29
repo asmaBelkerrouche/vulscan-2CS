@@ -5,17 +5,16 @@ import Routes from "../routes/Routes";
 
 export default function Layout() {
   const location = useLocation();
-  const isLoginPage = location.pathname === "/login"; // Adjust path if needed
+  const hideLayout =
+    location.pathname === "/login" || location.pathname === "/signup";
 
   return (
-    <div>
-      {!isLoginPage && <Navbar />} {/* Show Navbar only if not on /login */}
-      
-      <main>
-        <Routes />
+    <div className="flex flex-col min-h-screen">
+      {!hideLayout && <Navbar />}
+      <main className="flex-grow">
+        <Routes /> {/* Page content will render here */}
       </main>
-
-      {!isLoginPage && <Footer />} {/* Optional: also hide footer on login if desired */}
+      {!hideLayout && <Footer />}
     </div>
   );
 }
