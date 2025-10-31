@@ -13,7 +13,6 @@ db.sqlite3
 /media/
 staticfiles/
 .env
-.vscode/
 *.sqlite3
 
 # 🐍 Virtual environments
@@ -38,12 +37,23 @@ Thumbs.db
 .vscode/
 *.code-workspace
 
-# 🧩 Node (if you ever add a frontend)
+# 🧩 Node / Frontend (React, Vue, etc.)
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+dist/
+dist-ssr/
+*.local
 
 # 🧰 Build artifacts
-dist/
 build/
+
+# 💾 Misc
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
