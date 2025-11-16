@@ -3,12 +3,10 @@ import React from "react";
 
 export default function Navbar({ userName = "Student ID" }) {
   const location = useLocation();
-
-  // Determine which page is active based on the current path
   const currentPath = location.pathname;
 
   const getLinkClass = (path) =>
-    `text-sm font-medium pb-4 pt-4 border-b-2 transition-colors ${
+    `text-sm font-medium pb-4 pt-4 border-b-2 transition-all duration-300 ${
       currentPath === path
         ? "text-[#34D399] border-[#34D399]"
         : "text-gray-400 border-transparent hover:text-white hover:border-gray-600"
@@ -21,7 +19,7 @@ export default function Navbar({ userName = "Student ID" }) {
           {/* Left Section — Logo */}
           <div className="flex items-center">
             <svg
-              className="h-7 w-7 text-[#34D399]"
+              className="h-7 w-7 text-[#34D399] "
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -52,8 +50,8 @@ export default function Navbar({ userName = "Student ID" }) {
           </div>
 
           {/* Right Section — User Info */}
-          <div className="flex items-center gap-3 bg-slate-800/50 backdrop-blur-sm px-4 py-2 rounded-full border border-slate-700">
-            <div className="w-8 h-8 bg-slate-600 rounded-full flex items-center justify-center">
+          <div className="flex items-center gap-3 bg-slate-800/50 backdrop-blur-sm px-4 py-2 rounded-full border border-slate-700 transition-transform transform hover:scale-105 hover:shadow-lg duration-300">
+            <div className="w-8 h-8 bg-slate-600 rounded-full flex items-center justify-center animate-pulse">
               <svg
                 className="w-5 h-5 text-slate-300"
                 fill="currentColor"
@@ -66,7 +64,12 @@ export default function Navbar({ userName = "Student ID" }) {
                 />
               </svg>
             </div>
-            <span className="text-sm text-slate-300">{userName}</span>
+            <Link
+              to="/profile"
+              className="text-sm text-slate-300 hover:text-[#34D399] hover:underline transition-colors duration-300 font-medium"
+            >
+              {userName}
+            </Link>
           </div>
         </div>
       </div>

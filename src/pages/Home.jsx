@@ -71,7 +71,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto mt-40 px-6 relative flex flex-col items-center">
           {/* Vertical line from top to scan result */}
           <div className="absolute left-1/2 transform -translate-x-1/2 top-0 w-[2px] h-full bg-cyan-400/50 rounded-full z-0"></div>
-          <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/10 shadow-lg p-8 transition hover:shadow-[0_0_25px_#3EA8FF50] relative z-10">
+          <div className="bg-white/10 backdrop-blur-xl w-[1090px] rounded-2xl border border-white/10 shadow-lg p-8 transition hover:shadow-[0_0_25px_#3EA8FF50] relative z-10">
             <h3 className="text-white text-xl font-semibold mb-4">
               Scan Result Summary
             </h3>
