@@ -194,33 +194,150 @@ class ScanResultView(AuthenticatedView):
         return Response(data, status=status.HTTP_200_OK)
 
 
+
+# class ScanReportView(AuthenticatedView):
+#     """
+#     Rich report payload: summary + vulnerabilities + (inline) result.
+#     """
+#     def get(self, request, scan_id: int):
+#         scan = get_object_or_404(Scan, id=scan_id, user=request.user)
+#         if scan.status != "completed":
+#             return Response(
+#                 {"detail": f"Scan is {scan.status}. Report available after completion."},
+#                 status=status.HTTP_409_CONFLICT,
+#             )
+
+#         payload = {
+#             "scanId": f"s_{scan.id}",
+#             "target": scan.target,
+#             "mode": scan.mode,
+#             "status": scan.status,
+#             "summary": ReportSerializer(scan.report).data if hasattr(scan, "report") and scan.report else None,
+#             "vulnerabilities": VulnerabilitySerializer(scan.vulnerabilities.all(), many=True).data,
+#             "result": None,
+#         }
+#         try:
+#             payload["result"] = ScanResultSerializer(scan.result).data
+#         except ScanResult.DoesNotExist:
+#             payload["result"] = None
+
+#         return Response(payload, status=status.HTTP_200_OK)
+
+
 class ScanReportView(AuthenticatedView):
     """
-    Rich report payload: summary + vulnerabilities + (inline) result.
+    Rich report payload for viewing: summary + vulnerabilities + results + HTML/PDF output.
     """
-    def get(self, request, scan_id: int):
-        scan = get_object_or_404(Scan, id=scan_id, user=request.user)
+    def get(self, request, scan_id: int, fmt: str | None = None):
+        raw = fmt or request.GET.get("format") or request.GET.get("as") or "html"
+        fmt = str(raw).strip().lower()
+
+        # Fetch scan & check ownership
+        try:
+            scan = Scan.objects.get(id=scan_id, user=request.user)
+        except Scan.DoesNotExist:
+            return JsonResponse({"detail": "Scan not found."}, status=404)
+
         if scan.status != "completed":
-            return Response(
+            return JsonResponse(
                 {"detail": f"Scan is {scan.status}. Report available after completion."},
-                status=status.HTTP_409_CONFLICT,
+                status=409,
             )
 
-        payload = {
-            "scanId": f"s_{scan.id}",
-            "target": scan.target,
-            "mode": scan.mode,
-            "status": scan.status,
-            "summary": ReportSerializer(scan.report).data if hasattr(scan, "report") and scan.report else None,
-            "vulnerabilities": VulnerabilitySerializer(scan.vulnerabilities.all(), many=True).data,
-            "result": None,
-        }
+        # Pull related data
         try:
-            payload["result"] = ScanResultSerializer(scan.result).data
+            result = scan.result
         except ScanResult.DoesNotExist:
-            payload["result"] = None
+            result = None
 
-        return Response(payload, status=status.HTTP_200_OK)
+        # Vulnerabilities
+        vulns_qs = (
+            scan.vulnerabilities.all().order_by(
+                djm.Case(
+                    djm.When(severity="critical", then=djm.Value(0)),
+                    djm.When(severity="high", then=djm.Value(1)),
+                    djm.When(severity="medium", then=djm.Value(2)),
+                    djm.When(severity="low", then=djm.Value(3)),
+                    djm.When(severity="info", then=djm.Value(4)),
+                    default=djm.Value(5),
+                    output_field=djm.IntegerField(),
+                ),
+                "name",
+            )
+        )
+
+        hosts: list[dict] = []
+        if result:
+            hosts.append(
+                {
+                    "ip": scan.target,
+                    "reachable": bool(getattr(result, "open_ports", None)),
+                    "ports": getattr(result, "open_ports", []) or [],
+                    "http": getattr(result, "http_info", None),
+                    "tls": getattr(result, "tls_info", None),
+                    "vulnMatches": [],
+                }
+            )
+
+        vulns: list[dict] = []
+        for v in vulns_qs:
+            vulns.append(
+                {
+                    "severity": (v.severity or "info"),
+                    "name": v.name,
+                    "host": scan.target,
+                    "path": v.path or "",
+                    "description": v.description or "",
+                    "remediation": v.remediation or "",
+                    "references": v.reference_links or [],
+                }
+            )
+        if hosts:
+            hosts[0]["vulnMatches"] = vulns
+
+        # Aggregates
+        sev = _sev_summary(vulns)
+        duration = _dur_str(scan.started_at, scan.finished_at)
+        open_ports_total = sum(1 for p in getattr(result, "open_ports", []) if (p or {}).get("state") == "open") if result else 0
+        widths = {k: round(100 * sev.get(k, 0) / max(1, sev.get("total", 0)), 2) for k in ["critical","high","medium","low","info"]}
+
+        context = {
+            "app_name": "VulnScanner",
+            "logo_text": "VulnScanner",
+            "generated_at": timezone.now(),
+            "user_name": f"{getattr(request.user, 'first_name', 'User')} {getattr(request.user, 'last_name', '')}".strip(),
+            "scan": {
+                "scanId": f"s_{scan.id}",
+                "target": scan.target,
+                "type": scan.mode,
+                "status": scan.status,
+                "createdAt": scan.created_at.isoformat(),
+                "finishedAt": scan.finished_at.isoformat() if scan.finished_at else "",
+                "results": {"summary": {"hostsScanned": 1}, "hosts": hosts},
+            },
+            "hosts": hosts,
+            "vulns": vulns,
+            "sev": sev,
+            "widths": widths,
+            "duration": duration,
+            "open_ports_total": open_ports_total,
+        }
+
+        # Output formats
+        if fmt == "json":
+            return JsonResponse(context, status=200, safe=False)
+
+        html = render_to_string("reports/scan_report.html", context)
+
+        if fmt == "html":
+            return HttpResponse(html)
+
+        # default PDF
+        pdf = HTML(string=html, base_url=request.build_absolute_uri("/")).write_pdf()
+        resp = HttpResponse(pdf, content_type="application/pdf")
+        resp["Content-Disposition"] = f'attachment; filename="scan_report_{scan_id}.pdf"'
+        return resp
+
 
 # apps/scans_app/views.py  (download view section)
 

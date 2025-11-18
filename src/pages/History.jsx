@@ -1,15 +1,17 @@
+
+
+
 "use client"
 
 import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
 
 export default function History() {
   const [historyItems, setHistoryItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
-  const navigate = useNavigate()
   const API_BASE_URL = "http://127.0.0.1:8000"
 
+  // Fetch scan history from Django backend
   useEffect(() => {
     const fetchScanHistory = async () => {
       try {
@@ -19,9 +21,7 @@ export default function History() {
           credentials: "include",
         })
 
-        if (!res.ok) {
-          throw new Error("Failed to fetch scan history")
-        }
+        if (!res.ok) throw new Error("Failed to fetch scan history")
 
         const data = await res.json()
         setHistoryItems(data.scans || [])
@@ -36,10 +36,11 @@ export default function History() {
     fetchScanHistory()
   }, [])
 
+  // Handle downloading scan reports
   const handleDownload = async (scanId, format = "pdf") => {
     try {
-      const numericScanId = scanId.replace('s_', '')
-      const res = await fetch(`${API_BASE_URL}/scans/${numericScanId}/download?format=${format}`, {
+      const numericScanId = scanId.replace("s_", "")
+      const res = await fetch(`${API_BASE_URL}/scans/${numericScanId}/download`, {
         method: "GET",
         credentials: "include",
       })
@@ -49,7 +50,6 @@ export default function History() {
         throw new Error(errorData?.detail || "Failed to download report")
       }
 
-      // Handle different response types
       if (format === "json") {
         const data = await res.json()
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" })
@@ -85,27 +85,33 @@ export default function History() {
   }
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     })
   }
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "completed": return "text-green-400"
-      case "running": return "text-blue-400"
-      case "queued": return "text-yellow-400"
-      case "failed": return "text-red-400"
-      case "canceled": return "text-gray-400"
-      default: return "text-gray-400"
+      case "completed":
+        return "text-green-400"
+      case "running":
+        return "text-blue-400"
+      case "queued":
+        return "text-yellow-400"
+      case "failed":
+        return "text-red-400"
+      case "canceled":
+        return "text-gray-400"
+      default:
+        return "text-gray-400"
     }
   }
 
-  if (loading) {
+  if (loading)
     return (
       <div className="min-h-screen bg-[#0D1B2A] text-[#F4F4F4] px-6 py-16">
         <div className="mx-auto max-w-4xl">
@@ -116,9 +122,8 @@ export default function History() {
         </div>
       </div>
     )
-  }
 
-  if (error) {
+  if (error)
     return (
       <div className="min-h-screen bg-[#0D1B2A] text-[#F4F4F4] px-6 py-16">
         <div className="mx-auto max-w-4xl">
@@ -129,7 +134,6 @@ export default function History() {
         </div>
       </div>
     )
-  }
 
   return (
     <div className="min-h-screen bg-[#0D1B2A] text-[#F4F4F4] px-6 py-16">
@@ -161,29 +165,42 @@ export default function History() {
                   <span className="text-sm text-gray-400">{formatDate(item.createdAt)}</span>
                 </div>
 
-                {/* Note about vulnerabilities - since they're not in the list response */}
                 <div className="mb-4">
                   <span className="text-sm text-gray-400">
                     Vulnerability details available in full report
                   </span>
                 </div>
 
-                {/* Action buttons */}
                 <div className="flex gap-3">
+                  {/* Open Django report in new tab */}
                   <button
-                    onClick={() => navigate(`/scans/${item.scanId.replace('s_', '')}/report`)}
+                    onClick={() =>
+                      window.open(
+                        `http://127.0.0.1:8000/scans/${item.scanId.replace("s_", "")}/report`,
+                        "_blank"
+                      )
+                    }
                     className="bg-[#34D399] text-[#0D1B2A] px-4 py-2 rounded-lg text-sm font-semibold hover:bg-[#2ab57d] transition-colors"
                   >
                     View Full Report
                   </button>
+
+                  {/* Download PDF from Django */}
                   <button
                     onClick={() => handleDownload(item.scanId, "pdf")}
                     className="bg-[#1F3B5A] text-[#F4F4F4] px-4 py-2 rounded-lg text-sm font-semibold hover:bg-[#2d537e] transition-colors"
                   >
                     Download PDF
                   </button>
+
+                  {/* Scan details link */}
                   <button
-                    onClick={() => navigate(`/scans/${item.scanId.replace('s_', '')}`)}
+                    onClick={() =>
+                      window.open(
+                        `http://127.0.0.1:8000/scans/${item.scanId.replace("s_", "")}`,
+                        "_blank"
+                      )
+                    }
                     className="border border-[#1F3B5A] text-[#F4F4F4] px-4 py-2 rounded-lg text-sm font-semibold hover:bg-[#1F3B5A] transition-colors"
                   >
                     Scan Details
