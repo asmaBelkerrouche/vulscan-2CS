@@ -538,3 +538,5 @@ def most_common_vulns(request):
     result = [{"name": name, "count": count} for name, count in freq.most_common()]
 
     return Response({"most_common": result}, status=200)
+
+#--
