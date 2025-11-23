@@ -7,9 +7,8 @@ export default function Vulnerabilities({ user }) { // user prop indicates if lo
   const API_BASE_URL = "http://127.0.0.1:8000"
 
   useEffect(() => {
-    const fetchMostCommonVulnerabilities = async () => {
+    const fetchLatestVulnerabilities = async () => {
       if (!user) {
-        console.log("User not logged in, showing placeholder data")
         // If not logged in, show static placeholder vulnerabilities
         setVulnerabilities([
           { name: 'SQL Injection', status: 'unknown' },
@@ -23,6 +22,7 @@ export default function Vulnerabilities({ user }) { // user prop indicates if lo
       }
 
       try {
+<<<<<<< HEAD
         console.log("🔄 Fetching common vulnerabilities for user...")
         
         // Fetch most common vulnerabilities from the new endpoint
@@ -48,6 +48,30 @@ export default function Vulnerabilities({ user }) { // user prop indicates if lo
             { name: 'Information Disclosure', status: 'unknown' },
           ])
           return
+=======
+        // Get latest scan for logged-in user
+        const scansRes = await fetch(`${API_BASE_URL}/scans?limit=1`, {
+          credentials: "include",
+        })
+        
+        if (scansRes.ok) {
+          const scansData = await scansRes.json()
+          if (scansData.scans && scansData.scans.length > 0) {
+            const latestScan = scansData.scans[0]
+            
+            if (latestScan.status === "completed") {
+              const scanId = latestScan.scanId.replace('s_', '')
+              const reportRes = await fetch(`${API_BASE_URL}/scans/${scanId}/report`, {
+                credentials: "include",
+              })
+              
+              if (reportRes.ok) {
+                const reportData = await reportRes.json()
+                setVulnerabilities(reportData.vulnerabilities || [])
+              }
+            }
+          }
+>>>>>>> 42f2581f68c6867d0c05d43670440201ecfd6e26
         }
         
         if (!response.ok) {
@@ -108,7 +132,11 @@ export default function Vulnerabilities({ user }) { // user prop indicates if lo
       }
     }
 
+<<<<<<< HEAD
     fetchMostCommonVulnerabilities()
+=======
+    fetchLatestVulnerabilities()
+>>>>>>> 42f2581f68c6867d0c05d43670440201ecfd6e26
   }, [user])
 
   const commonVulns = [
@@ -119,6 +147,7 @@ export default function Vulnerabilities({ user }) { // user prop indicates if lo
     { name: 'Information Disclosure', type: 'info_disclosure' }
   ]
 
+<<<<<<< HEAD
   const getVulnStatus = (vulnName) => {
     if (!vulnerabilities || vulnerabilities.length === 0) {
       return { status: 'unknown', icon: '?' }
@@ -127,6 +156,15 @@ export default function Vulnerabilities({ user }) { // user prop indicates if lo
     const foundVuln = vulnerabilities.find(v => 
       v.name.toLowerCase().includes(vulnName.toLowerCase().split(' ')[0]) ||
       vulnName.toLowerCase().includes(v.name.toLowerCase().split(' ')[0])
+=======
+  const getVulnStatus = (vulnName, detectedVulns) => {
+    if (!detectedVulns || detectedVulns.length === 0) {
+      return { status: 'unknown', icon: '?' } // static placeholder state
+    }
+
+    const found = detectedVulns.some(v =>
+      v.name.toLowerCase().includes(vulnName.toLowerCase().split(' ')[0])
+>>>>>>> 42f2581f68c6867d0c05d43670440201ecfd6e26
     )
     
     return {
@@ -157,6 +195,7 @@ export default function Vulnerabilities({ user }) { // user prop indicates if lo
     <div className="w-full">
       <div className="bg-slate-800 rounded-2xl p-6 shadow-2xl">
         <h3 className="text-xl font-bold text-white mb-6">
+<<<<<<< HEAD
           Most Common Vulnerabilities {user && vulnerabilities.some(v => v.count > 0) && `(${vulnerabilities.filter(v => v.count > 0).length} types found)`}
         </h3>
         
@@ -171,6 +210,11 @@ export default function Vulnerabilities({ user }) { // user prop indicates if lo
           </div>
         )}
         
+=======
+          Common Vulnerabilities {vulnerabilities.length > 0 && user && `(${vulnerabilities.length} found)`}
+        </h3>
+        
+>>>>>>> 42f2581f68c6867d0c05d43670440201ecfd6e26
         <div className="space-y-3">
           {commonVulns.map((vuln, index) => {
             const status = getVulnStatus(vuln.name)
@@ -222,6 +266,7 @@ export default function Vulnerabilities({ user }) { // user prop indicates if lo
           })}
         </div>
 
+<<<<<<< HEAD
         {user && vulnerabilities.length > 0 && vulnerabilities.every(v => v.count === 0) && (
           <div className="text-center text-green-400 mt-4 text-sm">
             ✅ No vulnerabilities detected in your scans
@@ -229,6 +274,9 @@ export default function Vulnerabilities({ user }) { // user prop indicates if lo
         )}
 
         {user && vulnerabilities.length === 0 && !error && (
+=======
+        {vulnerabilities.length === 0 && user && (
+>>>>>>> 42f2581f68c6867d0c05d43670440201ecfd6e26
           <div className="text-center text-slate-400 mt-4 text-sm">
             No vulnerability data available. Run some scans to see results!
           </div>
