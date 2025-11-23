@@ -7,14 +7,50 @@ import SecurityShield from "../components/ShieldIllustration";
 
 export default function Home() {
   const [userName, setUserName] = useState("User");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
   useEffect(() => {
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-      const parsed = JSON.parse(userData);
-      setUserName(parsed.fullName || parsed.name || "User");
-    }
+    const checkAuthentication = () => {
+      try {
+        const userData = localStorage.getItem("userData");
+        const accessToken = localStorage.getItem("access_token");
+        const refreshToken = localStorage.getItem("refresh_token");
+        
+        console.log("🔍 Checking authentication...");
+        console.log("User data:", userData);
+        console.log("All localStorage keys:", Object.keys(localStorage));
+        
+        if (userData) {
+          const parsed = JSON.parse(userData);
+          console.log("✅ Found user data:", parsed);
+          setUserName(parsed.fullName || parsed.name || parsed.username || parsed.email || "User");
+          setIsLoggedIn(true);
+        } else if (accessToken || refreshToken) {
+          console.log("✅ Found tokens, user is logged in");
+          setUserName("User");
+          setIsLoggedIn(true);
+        } else {
+          console.log("❌ No authentication data found in localStorage");
+          setIsLoggedIn(false);
+        }
+      } catch (error) {
+        console.error("Error checking authentication:", error);
+        setIsLoggedIn(false);
+      }
+    };
+
+    checkAuthentication();
   }, []);
   
+  const manualLoginTest = () => {
+    localStorage.setItem("userData", JSON.stringify({
+      fullName: "Test User",
+      name: "Test User",
+      email: "test@example.com"
+    }));
+    window.location.reload();
+  };
+
   return (
     <div className="min-h-screen text-white bg-gradient-to-br from-[#0A1628] via-[#0D1B2A] to-[#1B263B] relative overflow-hidden">
       {/* === ANIMATED BACKGROUND EFFECTS === */}
@@ -32,6 +68,21 @@ export default function Home() {
       
       {/* === MAIN CONTENT === */}
       <div className="relative z-10 py-20">
+        {/* Debug info and manual login test */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="fixed top-4 right-4 bg-black/80 text-white p-3 rounded-lg text-xs z-50">
+            <div>Status: {isLoggedIn ? "✅ LOGGED IN" : "❌ NOT LOGGED IN"}</div>
+            <div>User: {userName}</div>
+            <div>Storage: {localStorage.length} items</div>
+            <button 
+              onClick={manualLoginTest}
+              className="mt-2 bg-green-500 hover:bg-green-600 px-2 py-1 rounded text-xs"
+            >
+              Test Login
+            </button>
+          </div>
+        )}
+
         {/* Top: Scan Now Button + Shield */}
         <div className="flex flex-col md:flex-row justify-between items-center max-w-7xl mx-auto px-6 mb-20 gap-6 md:gap-8 lg:gap-10">
           {/* ScanButton */}
@@ -67,26 +118,21 @@ export default function Home() {
           </div>
         </div>
         
-        {/* === SCAN RESULT SUMMARY === */}
         <div className="max-w-6xl mx-auto mt-40 px-6 relative flex flex-col items-center">
-          {/* Vertical line from top to scan result */}
-          <div className="absolute left-1/2 transform -translate-x-1/2 top-0 w-[2px] h-full bg-cyan-400/50 rounded-full z-0"></div>
-          <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/10 shadow-lg p-8 transition hover:shadow-[0_0_25px_#3EA8FF50] relative z-10">
+          <div className="bg-white/10 backdrop-blur-xl w-[1090px] rounded-2xl border border-white/10 shadow-lg p-8 transition hover:shadow-[0_0_25px_#3EA8FF50] relative z-10">
             <h3 className="text-white text-xl font-semibold mb-4">
               Scan Result Summary
             </h3>
-            <ScanResult />
+            <ScanResult user={isLoggedIn} />
           </div>
         </div>
         
-        {/* === SCAN HISTORY & VULNERABILITIES === */}
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 mt-10 px-6 relative">
-          
           <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/10 shadow-lg p-6 hover:shadow-[0_0_25px_#3EA8FF50] transition relative z-10">
             <ScanHistory />
           </div>
           <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/10 shadow-lg p-6 hover:shadow-[0_0_25px_#3EA8FF50] transition relative z-10">
-            <Vulnerabilities />
+            <Vulnerabilities user={isLoggedIn} />
           </div>
         </div>
       </div>

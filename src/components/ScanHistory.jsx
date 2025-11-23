@@ -10,7 +10,8 @@ export default function ScanHistory() {
   useEffect(() => {
     const fetchScanHistory = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/scans?limit=3`, {
+        // ADDED TRAILING SLASH HERE
+        const res = await fetch(`${API_BASE_URL}/scans/?limit=3`, {
           method: "GET",
           credentials: "include",
         })

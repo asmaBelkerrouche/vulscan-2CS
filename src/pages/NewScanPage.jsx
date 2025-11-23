@@ -36,7 +36,7 @@ export default function NewScanPage() {
         }
 
         // Fetch recent scans
-        const scansRes = await fetch(`${API_BASE_URL}/scans?limit=5`, {
+        const scansRes = await fetch(`${API_BASE_URL}/scans/?limit=5`, {
           method: "GET",
           credentials: "include",
         })
@@ -69,7 +69,7 @@ export default function NewScanPage() {
           }
 
           const scanId = currentScan.scanId.replace('s_', '')
-          const res = await fetch(`${API_BASE_URL}/scans/${scanId}`, {
+          const res = await fetch(`${API_BASE_URL}/scans/${scanId}/`, {
             method: "GET",
             credentials: "include",
           })
@@ -92,7 +92,7 @@ export default function NewScanPage() {
               clearInterval(interval)
               
               // Refresh recent scans
-              const scansRes = await fetch(`${API_BASE_URL}/scans?limit=5`, {
+              const scansRes = await fetch(`${API_BASE_URL}/scans/?limit=5`, {
                 method: "GET",
                 credentials: "include",
               })
@@ -130,7 +130,7 @@ export default function NewScanPage() {
     setEstimatedTime(scanType === "quick" ? 30 : 120)
 
     try {
-      const res = await fetch(`${API_BASE_URL}/scans`, {
+      const res = await fetch(`${API_BASE_URL}/scans/`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -163,7 +163,7 @@ export default function NewScanPage() {
       cancelRequestedRef.current = true
 
       const scanId = currentScan.scanId.replace('s_', '')
-      const res = await fetch(`${API_BASE_URL}/scans/${scanId}/cancel`, {
+      const res = await fetch(`${API_BASE_URL}/scans/${scanId}/cancel/`, {
         method: "POST",
         credentials: "include",
       })
@@ -181,7 +181,7 @@ export default function NewScanPage() {
       setError("Scan cancelled successfully")
       
       // Refresh recent scans
-      const scansRes = await fetch(`${API_BASE_URL}/scans?limit=5`, {
+      const scansRes = await fetch(`${API_BASE_URL}/scans/?limit=5`, {
         method: "GET",
         credentials: "include",
       })

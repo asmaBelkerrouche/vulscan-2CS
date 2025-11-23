@@ -1,18 +1,43 @@
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts"
 import { useState, useEffect } from "react"
 
-export default function ScanResult() {
+export default function ScanResult({ user }) { // Add user prop
   const [scanData, setScanData] = useState(null)
   const [loading, setLoading] = useState(true)
   const API_BASE_URL = "http://127.0.0.1:8000"
 
   useEffect(() => {
     const fetchLatestScan = async () => {
+      if (!user) {
+        // If not logged in, show static placeholder data
+        setScanData({
+          target: "example.com",
+          status: "completed",
+          summary: {
+            critical: 0,
+            high: 0,
+            medium: 0,
+            low: 0,
+            info: 0,
+            total: 0
+          }
+        })
+        setLoading(false)
+        return
+      }
+
       try {
-        const res = await fetch(`${API_BASE_URL}/scans?limit=1`, {
+        // ADDED TRAILING SLASH
+        const res = await fetch(`${API_BASE_URL}/scans/?limit=1`, {
           method: "GET",
           credentials: "include",
         })
+        
+        // Check if response is JSON before parsing
+        const contentType = res.headers.get("content-type")
+        if (!contentType || !contentType.includes("application/json")) {
+          throw new Error("Authentication required. Please log in.")
+        }
         
         if (res.ok) {
           const data = await res.json()
@@ -22,9 +47,21 @@ export default function ScanResult() {
             // If scan is completed, fetch the report for vulnerability counts
             if (latestScan.status === "completed") {
               const scanId = latestScan.scanId.replace('s_', '')
-              const reportRes = await fetch(`${API_BASE_URL}/scans/${scanId}/report`, {
+              // ADDED TRAILING SLASH
+              const reportRes = await fetch(`${API_BASE_URL}/scans/${scanId}/report/`, {
                 credentials: "include",
               })
+              
+              // Check if report response is JSON
+              const reportContentType = reportRes.headers.get("content-type")
+              if (!reportContentType || !reportContentType.includes("application/json")) {
+                setScanData({
+                  target: latestScan.target,
+                  status: latestScan.status,
+                  summary: null
+                })
+                return
+              }
               
               if (reportRes.ok) {
                 const reportData = await reportRes.json()
@@ -32,6 +69,12 @@ export default function ScanResult() {
                   target: latestScan.target,
                   status: latestScan.status,
                   summary: reportData.summary
+                })
+              } else {
+                setScanData({
+                  target: latestScan.target,
+                  status: latestScan.status,
+                  summary: null
                 })
               }
             } else {
@@ -41,17 +84,34 @@ export default function ScanResult() {
                 summary: null
               })
             }
+          } else {
+            setScanData(null) // No scans found
           }
+        } else {
+          throw new Error(`Failed to fetch scans: ${res.status} ${res.statusText}`)
         }
       } catch (error) {
         console.error("Error fetching scan data:", error)
+        // Fallback to static data on error
+        setScanData({
+          target: "example.com",
+          status: "completed",
+          summary: {
+            critical: 0,
+            high: 0,
+            medium: 0,
+            low: 0,
+            info: 0,
+            total: 0
+          }
+        })
       } finally {
         setLoading(false)
       }
     }
 
     fetchLatestScan()
-  }, [])
+  }, [user]) // Add user to dependencies
 
   // Calculate pie chart data from vulnerability summary
   const getChartData = () => {
@@ -101,13 +161,19 @@ export default function ScanResult() {
         <p className="text-gray-500 text-lg leading-relaxed font-medium">
           {scanData ? (
             <>
-              Latest scan of <strong>{scanData.target}</strong> shows {
-                scanData.summary ? (
-                  `${scanData.summary.total} total vulnerabilities detected.`
-                ) : (
-                  "scan is in progress or no vulnerabilities data available."
-                )
-              }
+              {!user ? (
+                "Welcome to VulnScanner! Log in to start scanning and see real results here."
+              ) : (
+                <>
+                  Latest scan of <strong>{scanData.target}</strong> shows {
+                    scanData.summary ? (
+                      `${scanData.summary.total} total vulnerabilities detected.`
+                    ) : (
+                      `scan is ${scanData.status}.`
+                    )
+                  }
+                </>
+              )}
             </>
           ) : (
             "No scan data available. Start your first scan to see results here."
