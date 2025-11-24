@@ -67,22 +67,6 @@ npm install
 npm run dev
 
 
-📁 Project Structure
-
-vulnscan/
-├── backend/                 # Django REST API
-│   ├── accounts/           # User authentication & profiles
-│   ├── scanning/           # Port scanning & vulnerability detection
-│   ├── reports/            # PDF generation & reporting
-│   └── core/               # Shared utilities & configurations
-├── frontend/               # React application
-│   ├── src/
-│   │   ├── components/     # Reusable UI components
-│   │   ├── pages/          # Application pages
-│   │   ├── services/       # API service layer
-│   │   └── utils/          # Helper functions
-│   └── public/             # Static assets
-└── docs/                   # Project documentation
 🔧 API Documentation
 The backend provides a RESTful API with the following main endpoints:
 
