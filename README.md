@@ -116,6 +116,3 @@ This project is developed for educational purposes as part of academic coursewor
 🤝 Contributing
 For development guidelines and contribution instructions, please refer to CONTRIBUTING.md
 
-
-# Frontend: http://localhost:5173
-# Backend API: http://localhost:8000
