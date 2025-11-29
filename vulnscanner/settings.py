@@ -38,7 +38,8 @@ SECRET_KEY = 'django-insecure-6b=-d0g%2rrw_a4@h3w*nhc!%967(!t@it@fxt0+!@q=n+%08h
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # Debug mode should be False in production for security
-DEBUG = True
+#DEBUG = True
+DEBUG = False
 
 # Hosts/domain names that this Django site can serve
 # In production, specify exact hosts instead of wildcard
