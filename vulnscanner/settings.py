@@ -136,14 +136,28 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'vulnscanner.urls'
 
 # Template configuration
+#TEMPLATES = [
+ #   {
+  #      'BACKEND': 'django.template.backends.django.DjangoTemplates',
+   #     'DIRS': [BASE_DIR / 'templates'],  # Additional template directories
+    #    'APP_DIRS': True,                  # Search for templates in app directories
+     #   'OPTIONS': {
+      #      'context_processors': [
+       #         # Context processors add variables to all templates
+        #        'django.template.context_processors.request',
+         #       'django.contrib.auth.context_processors.auth',
+          #      'django.contrib.messages.context_processors.messages',
+           # ],
+        #},
+    #},
+#]
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],  # Additional template directories
-        'APP_DIRS': True,                  # Search for templates in app directories
+        'DIRS': [BASE_DIR / 'dist'],  # serve index.html from dist
+        'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                # Context processors add variables to all templates
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
