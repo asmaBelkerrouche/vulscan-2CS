@@ -13,13 +13,15 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
+from django.views.generic import TemplateView  # 
 
 def home(request):
     return HttpResponse("Backend is running!")
 
 # Main URL patterns for the VulnScan application
 urlpatterns = [
-    path('', home),  # Root URL now shows a message
+    path('', TemplateView.as_view(template_name='index.html')),  # frontend root
+    #path('', home),  # Root URL now shows a message
     # Django administration interface
     path('admin/', admin.site.urls),
 
