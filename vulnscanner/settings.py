@@ -154,7 +154,7 @@ ROOT_URLCONF = 'vulnscanner.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'dist'],  # serve index.html from dist
+        'DIRS': [BASE_DIR ],  # serve index.html from dist
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
