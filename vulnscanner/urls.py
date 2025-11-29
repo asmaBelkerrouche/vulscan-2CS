@@ -16,6 +16,7 @@ from django.conf import settings
 
 # Main URL patterns for the VulnScan application
 urlpatterns = [
+    path('', home),  # <-- add this
     # Django administration interface
     path('admin/', admin.site.urls),
 
