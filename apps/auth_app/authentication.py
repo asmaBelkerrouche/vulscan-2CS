@@ -1,4 +1,4 @@
-```python
+
 """
 JWT Authentication middleware for VulnScan API.
 
@@ -160,4 +160,4 @@ Alternative Approaches Considered:
 - Session-based authentication (stateful, requires server storage)
 - OAuth2/OpenID Connect (more complex, for enterprise use)
 """
-```  
+
