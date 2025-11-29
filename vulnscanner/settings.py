@@ -224,3 +224,9 @@ CELERY_RESULT_SERIALIZER = "json"     # Serialize results as JSON
 # Media files configuration for user uploads (avatars, reports, etc.)
 MEDIA_URL = "/media/"                 # URL prefix for media files
 MEDIA_ROOT = BASE_DIR / "media"       # Filesystem path for media storage
+
+# Static files (CSS, JavaScript, Images)
+STATIC_URL = '/static/'
+
+# Folder where collectstatic will copy all files
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
