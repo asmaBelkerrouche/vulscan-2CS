@@ -579,4 +579,3 @@ Testing Recommendations:
 - Verify error responses are consistent and informative
 - Test cookie behavior across different browsers
 """
-```
