@@ -1,4 +1,4 @@
-```python
+
 """
 View controllers for VulnScan authentication application.
 
