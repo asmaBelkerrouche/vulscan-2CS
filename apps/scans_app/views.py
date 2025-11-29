@@ -491,8 +491,10 @@ class ScanDownloadView(AuthenticatedView):
     
 
 @api_view(['GET'])
-@authentication_classes([CookieJWTAuthentication])
-@permission_classes([IsAuthenticated])
+#@authentication_classes([CookieJWTAuthentication])
+#@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
+@permission_classes([permissions.IsAuthenticated])
 def most_common_vulns(request):
     """
     Retrieve statistics on most frequently found vulnerabilities.
