@@ -1,4 +1,3 @@
-```python
 """
 Serializers for VulnScan authentication application.
 
@@ -480,4 +479,3 @@ Testing Recommendations:
 - Test file upload validation with various file types
 - Verify password validation with weak passwords
 """
-```
