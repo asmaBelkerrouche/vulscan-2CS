@@ -229,4 +229,8 @@ MEDIA_ROOT = BASE_DIR / "media"       # Filesystem path for media storage
 STATIC_URL = '/static/'
 
 # Folder where collectstatic will copy all files
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+#STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+STATICFILES_DIRS = [BASE_DIR / "dist"]
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
