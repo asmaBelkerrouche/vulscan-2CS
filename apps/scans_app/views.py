@@ -353,6 +353,83 @@ def _pct(n, total):
         return 0
 
 
+
+
+class ScanReportView(AuthenticatedView):
+    """
+    Retrieve detailed technical results from a completed scan.
+    
+    Provides access to raw scan data including open ports,
+    service information, and TLS configuration details.
+    """
+    
+    def get(self, request, scan_id: int):
+        """
+        Get detailed technical scan results.
+        """
+        scan = get_object_or_404(Scan, id=scan_id, user=request.user)
+        if scan.status != "completed":
+            return Response(
+                {"detail": f"Scan is {scan.status}. Results available after completion."},
+                status=status.HTTP_409_CONFLICT,
+            )
+        try:
+            result = scan.result  # OneToOne
+        except ScanResult.DoesNotExist:
+            return Response({"detail": "Results not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        data = {
+            "scanId": f"s_{scan.id}",
+            "target": scan.target,
+            "mode": scan.mode,
+            "status": scan.status,
+            "result": ScanResultSerializer(result).data,
+        }
+        return Response(data, status=status.HTTP_200_OK)
+
+
+# Helper functions for report generation
+def _dur_str(start, end):
+    """
+    Return a short human-readable duration (e.g. '1 min 22 sec').
+    """
+    try:
+        if not start or not end:
+            return "—"
+        if isinstance(start, str):
+            start = timezone.datetime.fromisoformat(start.replace("Z", "+00:00"))
+        if isinstance(end, str):
+            end = timezone.datetime.fromisoformat(end.replace("Z", "+00:00"))
+        delta: timedelta = end - start
+        secs = max(0, int(delta.total_seconds()))
+        return f"{secs // 60} min {secs % 60} sec"
+    except Exception:
+        return "—"
+
+
+def _sev_summary(vulns):
+    """
+    Aggregate counts by severity.
+    """
+    summary = {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0}
+    for v in vulns:
+        sev = (v.get("severity") or "info").lower()
+        summary[sev] = summary.get(sev, 0) + 1
+    summary["total"] = sum(summary.values())
+    return summary
+
+
+def _pct(n, total):
+    """
+    Calculate percentage safely.
+    """
+    try:
+        return 0 if not total else round(n * 100 / total)
+    except Exception:
+        return 0
+
+
+
 class ScanDownloadView(AuthenticatedView):
     """
     Handle scan report downloads in multiple formats.
