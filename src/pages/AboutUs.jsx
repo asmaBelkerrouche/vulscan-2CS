@@ -4,8 +4,14 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 export default function AboutUs() {
+  // -------------------------------
+  // State for storing user's name
+  // -------------------------------
   const [userName, setUserName] = useState("UserName");
 
+  // -------------------------------
+  // On mount, check localStorage for user data
+  // -------------------------------
   useEffect(() => {
     const userData = localStorage.getItem("userData");
     if (userData) {
@@ -16,11 +22,17 @@ export default function AboutUs() {
 
   return (
     <div className="min-h-screen bg-[#0D1B2A] text-[#F4F4F4]">
-      {/* Hero Section */}
+
+      {/* ===============================
+          HERO SECTION
+          =============================== */}
       <section className="relative py-20 px-4 overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12 items-center">
-            {/* Left */}
+
+            {/* --------------------------
+                Left: Title, description, CTA button
+                -------------------------- */}
             <div>
               <h1 className="text-5xl font-bold mb-6 leading-tight">
                 Simple Vulnerability Scanning for Beginners
@@ -36,7 +48,9 @@ export default function AboutUs() {
               </Link>
             </div>
 
-            {/* Right Illustration */}
+            {/* --------------------------
+                Right: Illustration + animated particles
+                -------------------------- */}
             <div className="relative w-full max-w-md mx-auto">
               <svg viewBox="0 0 400 300" className="w-full">
                 <rect x="50" y="20" width="300" height="200" rx="8" fill="#142D4C" stroke="#34D399" strokeWidth="3" />
@@ -46,7 +60,7 @@ export default function AboutUs() {
                 <path d="M30 220 L50 220 L50 225 L350 225 L350 220 L370 220 L380 240 L20 240 Z" fill="#1F3B5A" stroke="#34D399" strokeWidth="2" />
               </svg>
 
-              {/* Animated particles */}
+              {/* Small animated particle effects */}
               <div className="absolute top-10 right-10 w-2 h-2 bg-[#34D399] rounded-full animate-pulse" />
               <div className="absolute top-32 right-5 w-1.5 h-1.5 bg-[#34D399] rounded-full animate-pulse" style={{ animationDelay: "0.5s" }} />
               <div className="absolute bottom-20 left-10 w-2 h-2 bg-[#34D399] rounded-full animate-pulse" style={{ animationDelay: "1s" }} />
@@ -55,10 +69,13 @@ export default function AboutUs() {
         </div>
       </section>
 
-      {/* How It Works */}
+      {/* ===============================
+          HOW IT WORKS SECTION
+          =============================== */}
       <section className="bg-[#F4F4F4] text-[#0D1B2A] py-20 px-4">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-4xl font-bold mb-12">How It Works</h2>
+
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
@@ -101,10 +118,13 @@ export default function AboutUs() {
         </div>
       </section>
 
-      {/* Why Choose Us */}
+      {/* ===============================
+          WHY CHOOSE US SECTION
+          =============================== */}
       <section className="bg-[#142D4C] py-20 px-4">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-4xl font-bold mb-12">Why Choose Us</h2>
+
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
@@ -134,7 +154,9 @@ export default function AboutUs() {
         </div>
       </section>
 
-      {/* Contact Section */}
+      {/* ===============================
+          CONTACT SECTION
+          =============================== */}
       <section className="bg-[#0D1B2A] py-20 px-4 border-t border-[#1F3B5A]">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-4xl font-bold text-center mb-12">Get In Touch</h2>
