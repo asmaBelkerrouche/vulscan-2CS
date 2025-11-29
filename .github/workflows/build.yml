@@ -19,14 +19,14 @@ jobs:
 
     - name: Install dependencies
       run: npm ci
-      working-directory: ./frontend  # <-- adjust if your frontend folder name is different
+      working-directory: ./  
 
     - name: Build frontend
       run: npm run build
-      working-directory: ./frontend
+      working-directory: ./
 
     - name: Upload build folder
       uses: actions/upload-artifact@v4
       with:
         name: frontend-dist
-        path: ./frontend/dist
+        path: ./dist
