@@ -1,4 +1,3 @@
-```python
 """
 URL configuration for VulnScan vulnerability scanner project.
 
