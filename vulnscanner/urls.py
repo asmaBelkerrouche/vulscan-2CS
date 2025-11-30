@@ -20,7 +20,8 @@ def home(request):
 
 # Main URL patterns for the VulnScan application
 urlpatterns = [
-    path('', TemplateView.as_view(template_name='index.html')),  # frontend root
+     re_path(r'^.*$', TemplateView.as_view(template_name="index.html")),
+    #path('', TemplateView.as_view(template_name='index.html')),  # frontend root
     #path('', home),  # Root URL now shows a message
     # Django administration interface
     path('admin/', admin.site.urls),
