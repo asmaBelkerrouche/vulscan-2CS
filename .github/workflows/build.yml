@@ -20,11 +20,11 @@ jobs:
 
     - name: Install frontend dependencies
       run: npm ci
-      working-directory: . # if package.json is in root
+      working-directory: ./  # if package.json is in root
 
     - name: Build frontend
       run: npm run build
-      working-directory: . # should produce ./dist folder
+      working-directory: ./  # should produce ./dist folder
 
     - name: Debug dist folder
       run: ls -la ./dist    # <- this checks if dist exists
