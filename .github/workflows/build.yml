@@ -23,10 +23,15 @@ jobs:
 
     - name: Build frontend
       run: npm run build
-      working-directory: .
+      working-directory: ./
+      
+    - name: Copy dist to Django static folder
+      run: |
+        mkdir -p ./staticfiles
+        cp -r ./dist/* ./staticfiles/
 
     - name: Upload build folder
       uses: actions/upload-artifact@v4
       with:
         name: frontend-dist
-        path: ./dist
+        path: ./staticfiles
