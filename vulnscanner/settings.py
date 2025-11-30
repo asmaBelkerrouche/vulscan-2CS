@@ -242,9 +242,8 @@ MEDIA_ROOT = BASE_DIR / "media"       # Filesystem path for media storage
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 
-# Folder where collectstatic will copy all files
-#STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+# Where Django looks for frontend build
+STATICFILES_DIRS = [BASE_DIR / "staticfiles"]  # <-- matches what workflow copies dist into
 
-STATICFILES_DIRS = [BASE_DIR/ 'dist' ]
-STATIC_ROOT = BASE_DIR / "staticfiles"
-
+# Where collectstatic will gather all static files for production
+STATIC_ROOT = BASE_DIR / "staticfiles_collected"
