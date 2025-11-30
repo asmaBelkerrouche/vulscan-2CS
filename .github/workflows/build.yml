@@ -10,9 +10,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-    # Step 1: Build React frontend
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
@@ -20,11 +20,12 @@ jobs:
 
     - name: Install frontend dependencies
       run: npm ci
+      working-directory: ./   # change to ./frontend if your package.json is there
 
     - name: Build frontend
       run: npm run build
+      working-directory: ./   # change to ./frontend if needed
 
-    # Step 2: Setup Python & Django
     - name: Setup Python
       uses: actions/setup-python@v4
       with:
@@ -33,13 +34,16 @@ jobs:
     - name: Install Django requirements
       run: pip install -r requirements.txt
 
-    # Step 3: Collect static files
+    - name: Copy frontend build to Django static folder
+      run: |
+        mkdir -p ./staticfiles
+        cp -r ./dist/* ./staticfiles/
+
     - name: Collect static files
       run: python manage.py collectstatic --noinput
 
-    # Step 4: Upload collected static files as artifact
-    - name: Upload static files
+    - name: Upload static files artifact
       uses: actions/upload-artifact@v4
       with:
         name: frontend-dist
-        path: ./staticfiles_collected
+        path: ./staticfiles
