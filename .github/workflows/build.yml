@@ -24,11 +24,17 @@ jobs:
     - name: Build frontend
       run: npm run build
       working-directory: ./
-      
-    - name: Copy dist to Django static folder
-      run: |
-        mkdir -p ./staticfiles
-        cp -r ./dist/* ./staticfiles/
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+
+    - name: Install Django requirements
+      run: pip install -r requirements.txt
+
+    - name: Collect static files
+      run: python manage.py collectstatic --noinput
 
     - name: Upload build folder
       uses: actions/upload-artifact@v4
