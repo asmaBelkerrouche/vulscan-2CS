@@ -243,7 +243,6 @@ MEDIA_ROOT = BASE_DIR / "media"       # Filesystem path for media storage
 STATIC_URL = '/static/'
 
 # Where Django looks for frontend build
-STATICFILES_DIRS = [BASE_DIR / "staticfiles"]  # <-- matches what workflow copies dist into
 
-# Where collectstatic will gather all static files for production
-STATIC_ROOT = BASE_DIR / "staticfiles_collected"
+STATICFILES_DIRS = [BASE_DIR / 'dist']  # <-- point to Vite build folder
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # collectstatic will gather here
