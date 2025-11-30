@@ -1,4 +1,4 @@
-name: Build Frontend
+name: Build Frontend and Collect Django Static
 
 on:
   push:
@@ -10,31 +10,36 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+    - uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
+    # Step 1: Build React frontend
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 20
 
-      - name: Install Node dependencies
-        run: npm ci
+    - name: Install frontend dependencies
+      run: npm ci
 
-      - name: Build frontend
-        run: npm run build
+    - name: Build frontend
+      run: npm run build
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.11
+    # Step 2: Setup Python & Django
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
 
-      - name: Install Django requirements
-        run: pip install -r requirements.txt
+    - name: Install Django requirements
+      run: pip install -r requirements.txt
 
-      - name: Move frontend build to static folder
-        run: |
-          mkdir -p ./staticfiles
-          cp -r ./dist/* ./staticfiles/
+    # Step 3: Collect static files
+    - name: Collect static files
+      run: python manage.py collectstatic --noinput
 
-      - name: Collect Django static files
-        run: python manage.py collectstatic --noinput
+    # Step 4: Upload collected static files as artifact
+    - name: Upload static files
+      uses: actions/upload-artifact@v4
+      with:
+        name: frontend-dist
+        path: ./staticfiles_collected
