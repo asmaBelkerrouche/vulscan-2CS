@@ -3,41 +3,38 @@ name: Build Frontend
 on:
   push:
     branches:
-      - main  # or your main branch
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: 20
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
 
-    - name: Install dependencies
-      run: npm ci
-      working-directory: ./  
+      - name: Install Node dependencies
+        run: npm ci
 
-    - name: Build frontend
-      run: npm run build
-      working-directory: ./
+      - name: Build frontend
+        run: npm run build
 
-    - name: Setup Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: 3.11
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
 
-    - name: Install Django requirements
-      run: pip install -r requirements.txt
+      - name: Install Django requirements
+        run: pip install -r requirements.txt
 
-    - name: Collect static files
-      run: python manage.py collectstatic --noinput
+      - name: Move frontend build to static folder
+        run: |
+          mkdir -p ./staticfiles
+          cp -r ./dist/* ./staticfiles/
 
-    - name: Upload build folder
-      uses: actions/upload-artifact@v4
-      with:
-        name: frontend-dist
-        path: ./staticfiles
+      - name: Collect Django static files
+        run: python manage.py collectstatic --noinput
