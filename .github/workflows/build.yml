@@ -20,11 +20,14 @@ jobs:
 
     - name: Install frontend dependencies
       run: npm ci
-      working-directory: ./   # change to ./frontend if your package.json is there
+      working-directory: ./  # if package.json is in root
 
     - name: Build frontend
       run: npm run build
-      working-directory: ./   # change to ./frontend if needed
+      working-directory: ./  # should produce ./dist folder
+
+    - name: Debug dist folder
+      run: ls -la ./dist    # <- this checks if dist exists
 
     - name: Setup Python
       uses: actions/setup-python@v4
